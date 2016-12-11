@@ -2,8 +2,18 @@ import paho.mqtt.client as mqtt
 import json
 import datetime
 from influxdb import InfluxDBClient
+import os
+import Config
+import logging
 
-influxClient = InfluxDBClient('db', 8086, 'root', 'root', 'example')
+
+print ("Connecting to influxdb host " + Config.Configuration().influxdbHost)
+influxClient = InfluxDBClient(
+    Config.Configuration().influxdbHost,
+    8086,
+    Config.Configuration().influxdbUsername,
+    Config.Configuration().influxdbPassword,
+    'dionysus_readings')
 
 def on_connect(client, userdata, flags, rc):
     print("Connected to mosquitto with result code "+str(rc))
@@ -20,8 +30,8 @@ def on_message(client, userdata, msg):
                    }
                }
            ]
-        print json_body
-        influxClient.write_points(points=json_body, database="dionysus_readings")
+        print("Persisting to influxdb: " + str(json_body))
+        influxClient.write_points(points=json_body)
 
 def main():
     mqttClient = mqtt.Client()
