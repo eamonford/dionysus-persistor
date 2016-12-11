@@ -16,3 +16,4 @@ class Configuration(Borg):
 		self.influxdbHost = os.getenv('INFLUXDB_HOST', "localhost")
 		self.influxdbUsername = os.getenv('INFLUXDB_USERNAME', "root")
 		self.influxdbPassword = os.getenv('INFLUXDB_PASSWORD', "root")
+		self.mqttHost = os.getenv('MQTT_HOST', 'localhost')

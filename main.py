@@ -37,7 +37,7 @@ def main():
     mqttClient = mqtt.Client()
     mqttClient.on_connect = on_connect
     mqttClient.on_message = on_message
-    mqttClient.connect("eamonford.hopto.org", 1883, 60)
+    mqttClient.connect(Config.Configuration().mqttHost, 1883, 60)
     mqttClient.subscribe("dionysus/moisture")
 
     mqttClient.loop_forever()
