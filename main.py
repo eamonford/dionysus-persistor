@@ -25,8 +25,10 @@ def on_message(client, userdata, msg):
                    "measurement": "moisture",
                    "time": datetime.datetime.now().isoformat(),
                    "fields": {
-                       "value": messageDict["value"],
-                       "device_id": messageDict["device_id"]
+                       "value": messageDict["value"]
+                   },
+                   "tags": {
+                        "device_id": messageDict["device_id"]
                    }
                }
            ]
