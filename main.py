@@ -6,6 +6,9 @@ import os
 import Config
 import logging
 
+logging.basicConfig()
+Logger = logging.getLogger(__name__)
+Logger.setLevel(20)
 
 print ("Connecting to influxdb host " + Config.Configuration().influxdbHost)
 influxClient = InfluxDBClient(
@@ -16,9 +19,10 @@ influxClient = InfluxDBClient(
     'dionysus_readings')
 
 def on_connect(client, userdata, flags, rc):
-    print("Connected to mosquitto with result code "+str(rc))
+    print("Connected to MQTT at host " + Config.Configuration().mqttHost)
 
 def on_message(client, userdata, msg):
+    try:
         messageDict = json.loads(str(msg.payload))
         json_body = [
                {
@@ -34,6 +38,10 @@ def on_message(client, userdata, msg):
            ]
         print("Persisting to influxdb: " + str(json_body))
         influxClient.write_points(points=json_body)
+    except KeyError as e:
+        Logger.exception("Could not parse message: " + msg.payload)
+    except:
+        Logger.exception("There was parsing and storing message: " + msg.payload)
 
 def main():
     mqttClient = mqtt.Client()
