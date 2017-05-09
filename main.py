@@ -41,7 +41,7 @@ def on_message(client, userdata, msg):
     except KeyError as e:
         Logger.exception("Could not parse message: " + msg.payload)
     except:
-        Logger.exception("There was parsing and storing message: " + msg.payload)
+        Logger.exception("There was a problem parsing and storing message: " + msg.payload)
 
 def main():
     mqttClient = mqtt.Client()
