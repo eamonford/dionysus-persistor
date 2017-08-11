@@ -1,6 +1,5 @@
 import paho.mqtt.client as mqtt
 import json
-import datetime
 from influxdb import InfluxDBClient
 import os
 import Config
@@ -9,6 +8,8 @@ import logging
 logging.basicConfig()
 Logger = logging.getLogger(__name__)
 Logger.setLevel(20)
+
+TOPIC_NAME = "dionysus/readings"
 
 print ("Connecting to influxdb host " + Config.Configuration().influxdbHost)
 influxClient = InfluxDBClient(
@@ -26,17 +27,19 @@ def on_message(client, userdata, msg):
         messageDict = json.loads(str(msg.payload))
         json_body = [
                {
-                   "measurement": "moisture",
-                   "time": datetime.datetime.now().isoformat(),
+                   "measurement": messageDict["metric"],
+                   "time": messageDict["time"],
                    "fields": {
-                       "value": messageDict["value"]
+                       "value": messageDict["value"],
+                       "battery": messageDict["battery"]
                    },
                    "tags": {
-                        "device_id": messageDict["device_id"]
+                        "device_id": messageDict["device_id"],
+                        "name": messageDict["name"]
                    }
                }
            ]
-        print("Persisting to influxdb: " + str(json_body))
+        print("Persisting to influxdb: " + json.dumps(json_body))
         influxClient.write_points(points=json_body)
     except KeyError as e:
         Logger.exception("Could not parse message: " + msg.payload)
@@ -48,7 +51,7 @@ def main():
     mqttClient.on_connect = on_connect
     mqttClient.on_message = on_message
     mqttClient.connect(Config.Configuration().mqttHost, 1883, 60)
-    mqttClient.subscribe("dionysus/moisture")
+    mqttClient.subscribe(TOPIC_NAME)
 
     mqttClient.loop_forever()
 
